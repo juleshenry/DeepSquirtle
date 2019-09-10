@@ -4,6 +4,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 import pandas as pd
 import time
+import sys, traceback
 
 
 class selenium_scraper:
@@ -66,6 +67,15 @@ class selenium_scraper:
                 team_1 = self.driver.find_elements(By.XPATH, value="//div[@class='chat battle-history']/em")[0].text
                 team_2 = self.driver.find_elements(By.XPATH, value="//div[@class='chat battle-history']/em")[1].text
                 winner = self.driver.find_elements(By.XPATH, value="//div[@class='battle-history']/strong")[-1].text.strip()
+                elo = self.driver.find_element(By.XPATH, value="//small[@class='uploaddate']").text.strip().split()[-1]
+
+                # Get more data from log
+                self.driver.get(row['battle_url'] + '.log')
+                log = self.driver.find_element(By.XPATH, value="//pre").text
+                p1_elo = [s for s in log.split('\n') if '|player|p1' in s][0].split('|')[-1]
+                p2_elo = [s for s in log.split('\n') if '|player|p2' in s][0].split('|')[-1]
+                disconnect = 1 if 'lost due to inactivity' in log else 0
+                # hazard =
 
                 # Preprocess data
                 if winner == player_1:
@@ -83,6 +93,10 @@ class selenium_scraper:
                 df.at[index, 'team_2'] = team_2
                 df.at[index, 'num_turns'] = num_turns
                 df.at[index, 'result'] = result
+                df.at[index, 'elo'] = elo
+                df.at[index, 'p1_elo'] = p1_elo
+                df.at[index, 'p2_elo'] = p2_elo
+                df.at[index, 'disconnect'] = disconnect
 
             # Occurs when game ends before 1st turn
             except IndexError:
@@ -91,6 +105,7 @@ class selenium_scraper:
             # To catch any unexpected error
             except Exception as e:
                 print(type(e), row['battle_url'])
+                print(sys.exc_info()[2].tb_lineno)
                 print(e)
                 continue
 
@@ -99,5 +114,5 @@ class selenium_scraper:
 
 if __name__ == '__main__':
     ss = selenium_scraper()
-    ss.scrape_urls()
-    # ss.scrape_battles()
+    # ss.scrape_urls()
+    ss.scrape_battles(save_interval=100)

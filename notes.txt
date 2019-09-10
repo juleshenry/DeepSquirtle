@@ -1,0 +1,6 @@
+Scraping:
+- which are the hazard spells?
+- do we use games that aren't rated? (might be experimental / taken less seriously)
+    -- BUT sometimes (i have found) games are not rated but are tournament games, therefore still taken seriously
+- why do some games not have 6 pokemon? (should probably get rid of these?)
+- should we include individual player elo? (games are in theory matched evenly so probably won't find too much here?)
