@@ -47,7 +47,7 @@ class selenium_scraper:
 
             if index % save_interval == 0:
                 df.to_csv(self.to_file, index=False)
-                print("Saving @", (time.time() - self.start)/60)
+                print("Saving", index, "@", (time.time() - self.start)/60)
 
             try:
                 self.driver.get(row['battle_url'])
@@ -75,7 +75,6 @@ class selenium_scraper:
                 p1_elo = [s for s in log.split('\n') if '|player|p1' in s][0].split('|')[-1]
                 p2_elo = [s for s in log.split('\n') if '|player|p2' in s][0].split('|')[-1]
                 disconnect = 1 if 'lost due to inactivity' in log else 0
-                # hazard =
 
                 # Preprocess data
                 if winner == player_1:
@@ -94,8 +93,8 @@ class selenium_scraper:
                 df.at[index, 'num_turns'] = num_turns
                 df.at[index, 'result'] = result
                 df.at[index, 'elo'] = elo
-                df.at[index, 'p1_elo'] = p1_elo
-                df.at[index, 'p2_elo'] = p2_elo
+                df.at[index, 'p1_elo'] = p1_elo if not p1_elo == '' else 0
+                df.at[index, 'p2_elo'] = p2_elo if not p2_elo == '' else 0
                 df.at[index, 'disconnect'] = disconnect
 
             # Occurs when game ends before 1st turn
@@ -114,5 +113,5 @@ class selenium_scraper:
 
 if __name__ == '__main__':
     ss = selenium_scraper()
-    # ss.scrape_urls()
-    ss.scrape_battles(save_interval=100)
+    ss.scrape_urls()
+    ss.scrape_battles(save_interval=20)
