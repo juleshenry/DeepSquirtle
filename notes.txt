@@ -1,6 +1,12 @@
-Scraping:
+Scraping 09/11/19:
 - which are the hazard spells?
+    j: Stealth Rock, Spikes, Toxic Spikes
 - do we use games that aren't rated? (might be experimental / taken less seriously)
+    j/h: probably not
     -- BUT sometimes (i have found) games are not rated but are tournament games, therefore still taken seriously
 - why do some games not have 6 pokemon? (should probably get rid of these?)
+    j: yes remove
 - should we include individual player elo? (games are in theory matched evenly so probably won't find too much here?)
+    j: could be an influence in outcome, so worthy!
+DataExpansion 09/12/19
+- how should we value the type effectiveness of teams?
