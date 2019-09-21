@@ -64,8 +64,8 @@ class selenium_scraper:
                 num_turns = int(self.driver.find_elements(By.XPATH, value="//h2[@class='battle-history']")[-1].text.split(' ')[-1])
                 player_1 = self.driver.find_elements(By.XPATH, value="//div[@class='wrapper replay-wrapper']/h1/a")[0].text.strip()
                 player_2 = self.driver.find_elements(By.XPATH, value="//div[@class='wrapper replay-wrapper']/h1/a")[1].text.strip()
-                team_1 = self.driver.find_elements(By.XPATH, value="//div[@class='chat battle-history']/em")[0].text
-                team_2 = self.driver.find_elements(By.XPATH, value="//div[@class='chat battle-history']/em")[1].text
+                team_1 = self.driver.find_elements(By.XPATH, value="//div[@class='chat battle-history']/em")[0].text.replace('/', ',')
+                team_2 = self.driver.find_elements(By.XPATH, value="//div[@class='chat battle-history']/em")[1].text.replace('/', ',')
                 winner = self.driver.find_elements(By.XPATH, value="//div[@class='battle-history']/strong")[-1].text.strip()
                 elo = self.driver.find_element(By.XPATH, value="//small[@class='uploaddate']").text.strip().split()[-1]
 
@@ -83,9 +83,6 @@ class selenium_scraper:
                     result = 'T2'
                 else:
                     result = 'ERR'
-
-                team_1 = [x.strip() for x in team_1.split('/')]
-                team_2 = [x.strip() for x in team_2.split('/')]
 
                 # Update dataframe
                 df.at[index, 'team_1'] = team_1
