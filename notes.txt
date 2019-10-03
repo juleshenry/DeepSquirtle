@@ -10,3 +10,4 @@ Scraping 09/11/19:
     j: could be an influence in outcome, so worthy!
 DataExpansion 09/12/19
 - how should we value the type effectiveness of teams?
+
