@@ -1,0 +1,17 @@
+DONE ----------------------------------------------------------------
+
+TO-DO ---------------------------------------------------------------
+Small fixes:
+    Debug pokekey/pokedex
+
+3.  Generate all individual metrics on dataset (attack, def, team/type, ...)
+    a.   Revisit type effectiveness metric
+            i.   thorough tests
+            j.   algorithm changes (explained in comments)
+
+4.  Data wrangling on newly generated data
+5.  Reassessment of data depending on correlations/further analysis
+
+5.5 Rename / Restructure shit
+
+6. Machine Learning
