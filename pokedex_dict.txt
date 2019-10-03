@@ -6660,6 +6660,12 @@
 		'baseStats': {'hp': 135, 'atk': 143, 'def': 143, 'spa': 80, 'spd': 65, 'spe': 34},
 		'abilities': {'0': 'Iron Fist'},
 	},
+	'missingno': {
+		'species': 'Missingno.',
+		'types': ['Bird', 'Normal'],
+		'baseStats': {'hp': 33, 'atk': 136, 'def': 0, 'spa': 6, 'spd': 6, 'spe': 29},
+		'abilities': {'0': ""},
+	},
 	'syclant': {
 		'species': 'Syclant',
 		'types': ['Ice', 'Bug'],
@@ -6993,5 +6999,11 @@
 		'types': ['Water', 'Bug'],
 		'baseStats': {'hp': 76, 'atk': 69, 'def': 90, 'spa': 65, 'spd': 77, 'spe': 43},
 		'abilities': {'0': 'Torrent', 'H': 'Poison Heal'},
+	},
+	'pokestarsmeargle': {
+		'species': 'Pokestar Smeargle',
+		'types': ['Normal'],
+		'baseStats': {'hp': 55, 'atk': 20, 'def': 35, 'spa': 20, 'spd': 45, 'spe': 75},
+		'abilities': {'0': 'Own Tempo', 1: 'Technician', 'H': 'Moody'},
 	},
 }
