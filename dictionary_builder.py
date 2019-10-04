@@ -57,7 +57,22 @@ js_dex = js_dex.replace("'Pa'''u'", "\"Pa'u\"")
 js_dex = js_dex.replace("'Type': 'Null'", "'Type: Null'")
 js_dex = js_dex.replace("'Missingno'.","'Missingno.'")
 js_dex = js_dex.replace("'abilities': {'0': }","'abilities': {'0': \"\"}")
-js_dex = js_dex[:js_dex.index(";")]
+# js_dex = js_dex[:js_dex.index(";")]
+
+pokedex = {}
+exec('pokedex = ' + js_dex)
+
+form_problems = []
+for pokedex_entry in pokedex.values():
+    if('otherForms' in pokedex_entry.keys()):
+        for forme in pokedex_entry['otherForms']:
+            if(forme not in pokedex.keys()):
+                form_problems.append({forme:pokedex_entry})
+
+for entry in form_problems:
+    pokedex.update(entry)
+
+js_dex = str(pokedex)
 
 f = open('pokedex_dict.txt', 'w+')
 f.write(js_dex)

@@ -13,11 +13,11 @@ def memoize(func):
 
     return memoized_func
 
-def destring(s):
+def string_to_list(s):
     #if s[0]== '[' and s[-1] == ']'
     return s.replace("[",'').replace(']','').replace("'",'').replace(' ','').split(",")
 
-def pokekey(s): return s.lower().replace('-','')
+def pokekey(s): return s.lower().replace('-','').replace('%','').replace('*','').replace(' ','').replace('.','').replace('\"','').replace(':','')
 
 @memoize
 def defensive_resistance(defender, defender2):
