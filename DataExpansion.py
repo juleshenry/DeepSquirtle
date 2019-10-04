@@ -28,13 +28,12 @@ for i in stats:
 
 #Type effectives
 def agg_type_strength(team1,team2):
-    print(team1,team2)
     t1 = [mon for mon in da.string_to_list(team1)]
     t2 = [mon for mon in da.string_to_list(team2)]
     t1_types = [pokedex.get(da.pokekey(mon)).get('types') for mon in t1]
     t2_types = [pokedex.get(da.pokekey(mon)).get('types') for mon in t2]
-
     type_metric = 0
+    
     for mon1 in t1_types:
         for att_type in mon1:
             for mon2 in t2_types:
@@ -42,7 +41,7 @@ def agg_type_strength(team1,team2):
                     type_metric += np.log2(da.attack_effectiveness(att_type,mon2[0],mon2[0]))
                 else:
                     type_metric += np.log2(da.attack_effectiveness(att_type,mon2[0],mon2[1]))
-                            
+                         
     for mon2 in t2_types:
         for att_type in mon2:
             for mon1 in t1_types:
@@ -51,11 +50,54 @@ def agg_type_strength(team1,team2):
                 else:
                     type_metric -= np.log2(da.attack_effectiveness(att_type,mon1[0],mon1[1]))
 
-    return(type_metric)
+    return type_metric
 
-df['agg_type_strength'] = df.apply(lambda x: agg_type_strength(x.team_1, x.team_2), axis=1)
+def max_type_strength(team1,team2):
+    t1 = [mon for mon in da.string_to_list(team1)]
+    t2 = [mon for mon in da.string_to_list(team2)]
+    t1_types = [pokedex.get(da.pokekey(mon)).get('types') for mon in t1]
+    t2_types = [pokedex.get(da.pokekey(mon)).get('types') for mon in t2]
+    type_metric = 0
+    
+    for mon1 in t1_types:
+        if(len(mon1)==1): 
+            for mon2 in t2_types:
+                # Defending pokemon case
+                if(len(mon2)==1): 
+                    type_metric += np.log2(da.attack_effectiveness(mon1[0],mon2[0],mon2[0]))
+                else:
+                    type_metric += np.log2(da.attack_effectiveness(mon1[0],mon2[0],mon2[1]))
+        else:
+            for mon2 in t2_types:
+                if(len(mon2)==1): 
+                    type_metric += max(np.log2(da.attack_effectiveness(mon1[0],mon2[0],mon2[0])),np.log2(da.attack_effectiveness(mon1[1],mon2[0],mon2[0])))
+                else:
+                    type_metric += max(np.log2(da.attack_effectiveness(mon1[0],mon2[0],mon2[1])),np.log2(da.attack_effectiveness(mon1[1],mon2[0],mon2[1])))
+                         
+    for mon2 in t2_types:
+        if(len(mon2)==1): 
+            for mon1 in t1_types:
+                # Defending pokemon case
+                if(len(mon1)==1): 
+                    type_metric -= np.log2(da.attack_effectiveness(mon2[0],mon1[0],mon1[0]))
+                else:
+                    type_metric -= np.log2(da.attack_effectiveness(mon2[0],mon1[0],mon1[1]))
+        else:
+            for mon1 in t1_types:
+                if(len(mon1)==1): 
+                    type_metric -= max(np.log2(da.attack_effectiveness(mon2[0],mon1[0],mon1[0])),np.log2(da.attack_effectiveness(mon2[1],mon1[0],mon1[0])))
+                else:
+                    type_metric -= max(np.log2(da.attack_effectiveness(mon2[0],mon1[0],mon1[1])),np.log2(da.attack_effectiveness(mon2[1],mon1[0],mon1[1])))    
 
-print(df['agg_type_strength'].to_frame().head())
+    return type_metric
+
+# df['agg_type_strength'] = df.apply(lambda x: agg_type_strength(x.team_1, x.team_2), axis=1)
+t1 = df.team_1.iloc[3101]
+t2 = df.team_2.iloc[3101]
+print(max_type_strength(t1,t2))
+print(agg_type_strength(t1,t2))
+
+
 
 #Calculate Distribution of Pokemon
 # agg_roster = []
