@@ -17,14 +17,44 @@ df = df[df.elo != 2019]
 df = df[df.num_turns > 15]
 
 #Aggregate Team Base Stats
-stats = [pokedex[da.pokekey(p)]['baseStats'] for p in da.string_to_list(df.team_1.iloc[0])]
-agg_stats = {}
-for i in stats:
-    for j in i.keys():
-        if(j not in agg_stats.keys()):
-            agg_stats.update({j:i.get(j)})
-        else:
-            agg_stats.update({j:agg_stats.get(j) + i.get(j)})
+# Defaults to All if no second argument given
+# Else, takes argument team as a string and the stat in question as a string
+def agg_team_base_stats(team, stat='All'):
+    stats = [pokedex[da.pokekey(p)]['baseStats'] for p in da.string_to_list(team)]
+    if(stat not in stats[0].keys() and stat != 'All'):
+        print('ERROR: Incorrect stat key')
+        return 
+    agg_stats = {}
+    for i in stats:
+        for j in i.keys():
+            if(j not in agg_stats.keys()):
+                agg_stats.update({j:i.get(j)})
+            else:
+                agg_stats.update({j:agg_stats.get(j) + i.get(j)})
+    if(stat=='All'):
+        stat_count = 0
+        for i in agg_stats.values():
+            stat_count += i
+        return stat_count
+    else:
+        return agg_stats[stat]
+
+
+df['agg_base_stats_1'] = df.apply(lambda x: agg_team_base_stats(x.team_1), axis=1)
+df['agg_base_stats_2'] = df.apply(lambda x: agg_team_base_stats(x.team_2), axis=1)
+
+success, total = 0.0, 0.0
+thresh = 500
+for index, row in df.iterrows():
+    t11 = row['agg_base_stats_1']
+    t12 = row['agg_base_stats_2']
+    print(t11,'vs. ',t12,'=',row['result'])
+    if(abs(t11-t12) > thresh):
+        total += 1.0
+        if((t11 < t12 and row['result'] == 'T2') or (t11 > t12 and row['result'] == 'T1')):
+            print('correct')
+            success += 1.0
+print("Aggregate: Successes, Total, Ratio",success,total,success/total)
 
 #Type effectives
 def agg_type_strength(team1,team2):
@@ -70,9 +100,11 @@ def max_type_strength(team1,team2):
         else:
             for mon2 in t2_types:
                 if(len(mon2)==1): 
-                    type_metric += max(np.log2(da.attack_effectiveness(mon1[0],mon2[0],mon2[0])),np.log2(da.attack_effectiveness(mon1[1],mon2[0],mon2[0])))
+                    type_metric += max(np.log2(da.attack_effectiveness(mon1[0],mon2[0],mon2[0])),\
+                    np.log2(da.attack_effectiveness(mon1[1],mon2[0],mon2[0])))
                 else:
-                    type_metric += max(np.log2(da.attack_effectiveness(mon1[0],mon2[0],mon2[1])),np.log2(da.attack_effectiveness(mon1[1],mon2[0],mon2[1])))
+                    type_metric += max(np.log2(da.attack_effectiveness(mon1[0],mon2[0],mon2[1])),\
+                    np.log2(da.attack_effectiveness(mon1[1],mon2[0],mon2[1])))
                          
     for mon2 in t2_types:
         if(len(mon2)==1): 
@@ -85,18 +117,48 @@ def max_type_strength(team1,team2):
         else:
             for mon1 in t1_types:
                 if(len(mon1)==1): 
-                    type_metric -= max(np.log2(da.attack_effectiveness(mon2[0],mon1[0],mon1[0])),np.log2(da.attack_effectiveness(mon2[1],mon1[0],mon1[0])))
+                    type_metric -= max(np.log2(da.attack_effectiveness(mon2[0],mon1[0],mon1[0])),\
+                    np.log2(da.attack_effectiveness(mon2[1],mon1[0],mon1[0])))
                 else:
-                    type_metric -= max(np.log2(da.attack_effectiveness(mon2[0],mon1[0],mon1[1])),np.log2(da.attack_effectiveness(mon2[1],mon1[0],mon1[1])))    
+                    type_metric -= max(np.log2(da.attack_effectiveness(mon2[0],mon1[0],mon1[1])),\
+                    np.log2(da.attack_effectiveness(mon2[1],mon1[0],mon1[1])))    
 
     return type_metric
 
 # df['agg_type_strength'] = df.apply(lambda x: agg_type_strength(x.team_1, x.team_2), axis=1)
-t1 = df.team_1.iloc[3101]
-t2 = df.team_2.iloc[3101]
-print(max_type_strength(t1,t2))
-print(agg_type_strength(t1,t2))
+# df['max_type_strength'] = df.apply(lambda x: max_type_strength(x.team_1, x.team_2), axis=1)
 
+# success, total = 0.0,0.0
+# thresh = 20
+# for index, row in df.iterrows():
+#     agg = row['agg_type_strength']
+#     if(abs(agg) > thresh):
+#         total += 1.0
+#         if((agg < 0 and row['result'] == 'T2') or (agg > 0 and row['result'] == 'T1')):
+#             success += 1.0
+
+# # print("Aggregate: Successes, Total, Ratio",success,total,success/total)
+
+# success, total = 0.0,0.0
+# for index, row in df.iterrows():
+#     maks = row['max_type_strength']
+#     if(abs(maks) > thresh):
+#         total += 1.0
+#         if((maks < 0 and row['result'] == 'T2') or (maks > 0 and row['result'] == 'T1')):
+#             success += 1.0
+
+# # print("Maximum: Successes, Total, Ratio",success,total,success/total)
+# for index, row in df.iterrows():
+#     maks = row['max_type_strength']
+#     agg = row['agg_type_strength']
+#     if(abs(maks) > thresh and abs(agg) > thresh):
+#         total += 1.0
+#         if((maks < 0 and row['result'] == 'T2') or (maks > 0 and row['result'] == 'T1')\
+#             and (agg < 0 and row['result'] == 'T2') or (agg > 0 and row['result'] == 'T1')):
+#             success += 1.0
+
+# print("Combined: Successes, Total, Ratio",success,total,success/total)
+# print("Total Datapoints",df.shape[0]," Threshold",thresh)
 
 
 #Calculate Distribution of Pokemon
