@@ -5,22 +5,22 @@ Small fixes:
         a.   Revisit type effectiveness metric
             i.   thorough tests
             j.   algorithm changes (explained in comments)
-        b. mean 
+        b. mean
         c. standard deviation
-            
         d. agg_sdv(stats) function
+        
 TO-DO ---------------------------------------------------------------
 
 3.  Generate all individual metrics on dataset (attack, def, team/type, ...)
     a. usage distribution
         ii. average usage of team
-    b. figure out how to combine standard deviation with 
+    b. figure out how to combine standard deviation with
 
 4.  Data wrangling on newly generated data
     a. Construct the final dataframe
-    b. Normalize our data 
+    b. Normalize our data
     c. Partition into Test and Training Data
-    
+
 5.  Reassessment of data depending on correlations/further analysis
 
 5.5 Rename / Restructure shit
