@@ -1,5 +1,5 @@
-import numpy as np 
-import pandas as pd 
+import numpy as np
+import pandas as pd
 
 def memoize(func):
     cache = dict()
@@ -62,7 +62,7 @@ def defensive_resistance(defender, defender2):
         n+=str(float(z[b]))+" "
     return(n.split(' ')[1:-1])
 
-@memoize  
+@memoize
 def attack_effectiveness(att_type, def_type1, def_typ2):
     e=["Normal","Fighting","Flying","Poison","Ground","Rock","Bug","Ghost",\
         "Steel","Fire","Water","Grass","Electric","Psychic","Ice","Dragon","Dark","Fairy"]
@@ -70,4 +70,3 @@ def attack_effectiveness(att_type, def_type1, def_typ2):
         if(e[i]==att_type):
             attack_index = i
     return(float(defensive_resistance(def_type1, def_typ2)[attack_index]))
-
