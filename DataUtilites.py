@@ -35,7 +35,7 @@ def memoize(func):
     return memoized_func
 
 def get_roster_as_list(s):
-    bad_chars = ['[', ']', ''', ' ']
+    bad_chars = ['[', ']', "'", ' ']
     return s.translate({ord(c): '' for c in bad_chars}).split(',')
 
 def pokekey(s):
