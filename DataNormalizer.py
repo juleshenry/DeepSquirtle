@@ -1,6 +1,6 @@
- class DataNormalizer:
-     def normalize(self, data):
-         pass
+class DataNormalizer:
+    def normalize(self, data):
+        pass
 
     def normalize_one_way(self, data):
         pass
