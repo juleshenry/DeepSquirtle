@@ -4,22 +4,34 @@ from DataTransformer import *
 
 #TODO: implement test cases
 class TestTransformer(unittest.TestCase):
-    
+
     def test_get_roster_mean_basestat(self):
         self.assertEqual(True,True)
 
     def test_get_roster_mean_all_stats(self):
         self.assertEqual(True,True)
 
+    def test_get_roster_mean_overall_defense(self):
+        self.assertEqual(True,True)
+
+    def test_get_roster_mean_overall_attack(self):
+        self.assertEqual(True,True)
+
     def test_get_roster_sdv_basestat(self):
         self.assertEqual(True,True)
 
-    def get_roster_sdv_all_stats(self):
+    def test_get_roster_sdv_all_stats(self):
+        self.assertEqual(True,True)
+
+    def test_get_roster_sdv_overall_defense(self):
+        self.assertEqual(True,True)
+
+    def test_get_roster_sdv_overall_attack(self):
         self.assertEqual(True,True)
 
     def test_get_total_attack_effectiveness(self):
         self.assertEqual(True,True)
-        
+
     def test_get_most_effective_attack_effectiveness(self):
         self.assertEqual(True,True)
 
@@ -28,10 +40,14 @@ class TestTransformer(unittest.TestCase):
 
     def test_evaluate_matchup_most_effective(self):
         self.assertEqual(True,True)
-    
+
     def test_get_highest_speed_flag(self):
-        self.assertEqual(True,True)
-  
+        dt = DataTransformer()
+        r1 = 'Pikachu, Voltorb'
+        r2 = 'Bulbasaur, Voltorb'
+        winner = 'TIE'
+        self.assertEqual(dt.get_highest_speed_flag(r1,r2), winner)
+
     def test_get_sdv_roster_usage_rates(self):
         self.assertEqual(True,True)
 
@@ -39,7 +55,7 @@ class TestTransformer(unittest.TestCase):
         self.assertEqual(True,True)
 
 class TestUtilities(unittest.TestCase):
-    
+
     def test_get_roster_as_list(self):
         roster = "[[a], b'', c     d]"
         desired = ['a','b','cd']
@@ -84,7 +100,7 @@ class TestUtilities(unittest.TestCase):
 
         desired = 2**-1.5
         self.assertEqual(get_attack_effectiveness('Normal', ['Ghost','Dark']),desired)
-     
+
 
 if __name__ == '__main__':
     # Run only the tests in the specified classes
@@ -101,4 +117,3 @@ if __name__ == '__main__':
 
     runner = unittest.TextTestRunner()
     results = runner.run(big_suite)
-
