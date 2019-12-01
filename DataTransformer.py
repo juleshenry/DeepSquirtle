@@ -1,20 +1,45 @@
 import numpy as np
 import pandas as pd
 from DataUtilities import *
+from collections import Counter
 
 class DataTransformer:
+
     def __init__(self):
         self.pokedex = {}
         with open('pokedex_dict.txt', 'r+') as f: exec('self.pokedex = ' + f.read())
-
+        self.usage_dict = {}
+    
     def transform(self, data):
-        #Clean Data
-        data = data.drop(['battle_url'],axis=1)
-        data = data.dropna()
-        data = data[data.elo != 2019]
-        data = data[data.elo >= 1400]
-        data = data[data.num_turns > 5] #TODO: could be deviation from mean turns
-        pass
+        # Initialize Usage_Dictionary
+        self.usage_dict = self.get_usage_dict(data)
+
+        transformed_data = data 
+
+        return transformed_data
+
+    # Returns a dictionary with keys as pokemon and usage as percentage of total appearance as values
+    def get_usage_dict(self, data):
+        usage_dict = {}
+
+        for i in range(data.shape[0]):
+            teams = ['team_1','team_2']
+            for team in teams:
+                for poke in get_roster_as_list(data[team].iloc[i]):
+                    poke = deforme_pokemon_name(poke)
+                    if poke in usage_dict.keys():
+                        usage_dict.update({poke : usage_dict.get(poke) + 1})
+                    else:
+                        usage_dict.update({poke : 1})
+
+        total = 0
+        for cnt in usage_dict.values():
+            total = total + cnt
+
+        for j in usage_dict.keys():
+            usage_dict.update({j : float(usage_dict.get(j))/total})
+            # print(j,float(usage_dict.get(j)*100))
+        return usage_dict
 
     def get_roster_mean_basestat(self, stat, roster):
         return sum([self.pokedex[pokekey(p)]['baseStats'][stat] for p in get_roster_as_list(roster)])/6.0
@@ -26,7 +51,7 @@ class DataTransformer:
         m_spa = self.get_roster_mean_basestat('spa', roster)
         m_spd = self.get_roster_mean_basestat('spd', roster)
         m_spe = self.get_roster_mean_basestat('spe', roster)
-
+        
         return (m_hp + m_atk + m_def + m_spa + m_spd + m_spe)/6.0
 
     def get_roster_sdv_basestat(self, stat, roster):
@@ -65,8 +90,8 @@ class DataTransformer:
         return type_metric
 
     def get_most_effective_attack_effectiveness(self, roster1, roster2):
-        t1 = [mon for mon in get_roster_as_list(roster1)]
-        t2 = [mon for mon in get_roster_as_list(roster2)]
+        t1 = get_roster_as_list(roster1)
+        t2 = get_roster_as_list(roster2)
         t1_as_types = [self.pokedex.get(pokekey(mon)).get('types') for mon in t1]
         t2_as_types = [self.pokedex.get(pokekey(mon)).get('types') for mon in t2]
 
@@ -98,15 +123,16 @@ class DataTransformer:
             return max(get_attack_effectiveness(att_mon_types[0], def_mon_types),
                        get_attack_effectiveness(att_mon_types[1], def_mon_types))
 
-
-    #TODO: Get the roster matchup highest speed
-    def get_highest_speed_flag(self):
-        return
+    def get_highest_speed_flag(self, roster1, roster2):
+        # t1 = [mon for mon in get_roster_as_list(roster1)]
+        # t2 = [mon for mon in get_roster_as_list(roster2)]
+        # t1_as_types = [self.pokedex.get(pokekey(mon)).get('baseStats').get('spe') for mon in t1]
+        # t2_as_types = [self.pokedex.get(pokekey(mon)).get('baseStats').get('spe') for mon in t2]
+        return 
   
-    #TODO: Basically, calculate the standard deviation per pokemon from the average distribution
-    def get_sdv_roster_usage_rates(self):
-        return
+    def get_sdv_roster_usage_rates(self, roster):
+        return np.std([self.usage_dict[deforme_pokemon_name(mon)] for mon in get_roster_as_list(roster)])
 
-    #TODO: Basically, add up all distribution per pokemon and get mean
-    def get_mean_roster_usage_rates(self):
-        return
+    def get_mean_roster_usage_rates(self, roster):
+        return sum([self.usage_dict[deforme_pokemon_name(mon)] for mon in get_roster_as_list(roster)]) / 6.0
+

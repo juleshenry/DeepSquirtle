@@ -8,13 +8,13 @@ Small fixes:
         b. mean
         c. standard deviation
         d. agg_sdv(stats) function
-        
-TO-DO ---------------------------------------------------------------
-
-3.  Generate all individual metrics on dataset (attack, def, team/type, ...)
+    Generate all individual metrics on dataset (attack, def, team/type, ...)
     a. usage distribution
         ii. average usage of team
-    b. figure out how to combine standard deviation with
+
+TO-DO ---------------------------------------------------------------
+
+
 
 4.  Data wrangling on newly generated data
     a. Construct the final dataframe
