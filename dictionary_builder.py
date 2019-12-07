@@ -68,14 +68,18 @@ for pokedex_entry in pokedex.values():
         for forme in pokedex_entry['otherForms']:
             if(forme not in pokedex.keys()):
                 form_problems.append({forme:pokedex_entry})
+    # if('otherFormes' in pokedex_entry.keys()):
+    #     for forme in pokedex_entry['otherFormes']:
+    #         if(forme not in pokedex.keys()):
+    #             form_problems.append({forme:pokedex_entry})
 
 for entry in form_problems:
     pokedex.update(entry)
 
 js_dex = str(pokedex)
 
-f = open('pokedex_dict.txt', 'w+', encoding="utf-8")
+f = open('pokedex_dict_2.txt', 'w+', encoding="utf-8")
 f.write(js_dex)
 f.close()
-kyk = 0
-dicc = exec("kyk = " + js_dex)
+test_dict = {}
+dicc = exec("test_dict = " + js_dex)

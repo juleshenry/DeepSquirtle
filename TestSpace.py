@@ -54,6 +54,12 @@ class TestTransformer(unittest.TestCase):
     def test_get_mean_roster_usage_rates(self):
         self.assertEqual(True,True)
 
+    def test_get_speed_flag(self):
+        r1 = ['Pikachu']
+        r2 = ['Bulbasaur']
+        winner = 'T1'
+        self.assertEqual(True,True)
+
 class TestUtilities(unittest.TestCase):
 
     def test_get_roster_as_list(self):
