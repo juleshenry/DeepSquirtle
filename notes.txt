@@ -15,3 +15,58 @@ DataExpansion 10/20/19
 - low elo games have an inverse correlation between mean stats and game outcome... why?
 - high elo games are nearly uncorrelated
 
+Refactor (11/1/2019) --------------------------------------------------------
+
+Brainstorm: -----------------------------------------------------------------
+
+What Classes do we want?
+
+we have:
+scraper --> DataScraper
+dataframe with rows --> data.csv
+
+we want to create:
+new dataframe with new data --> ABT (Analytics Base Table)
+data normalizing functions --> DataNormalizer
+functionality to test/explore data --> Data Visualizer
+Machine Learning models
+------------------------------------------------------------------------------
+
+Architecture v0: -------------------------------------------------------------
+
+1.  DataScraper
+
+    input:  scraping configurations (what/where to scrape)
+    output: raw data (data.csv)
+
+2.  DataManager
+
+    input:  raw data (data.csv)
+    output: ABT (Analytics Base Table, final form of data to pass to ML models)
+
+    - DataTransformer (this is what DataExpansion is becoming)
+
+      input:  raw data (data.csv)
+      output: un-normalized ABT
+
+    - DataNormalizer
+
+      input:  un-normalized ABT
+      output: final ABT
+
+      *** MIGHT NOT MAKE SENSE TO SEPARATE TRANSFORMER AND NORMALIZER
+          DEPENDS ON WHETHER IT MAKES SENSE TO NORMALIZE WITHIN OR OUTSIDE OF "TRANFORMATION" PROCESS
+
+3.  DataVisualizer
+
+      input:  ABT
+      output: different kinds of reports on data (tables, graphs, etc)
+
+4+. Machine Learning models (TBD)
+
+      input:  ABT
+      output: performance info
+
+
+Inputs/Outputs explain where the interfaces between these classes should exist
+------------------------------------------------------------------------------------
