@@ -8,8 +8,9 @@ class DataTransformer:
     def __init__(self):
         self.pokedex = {}
         with open('pokedex_dict.txt', 'r+') as f: exec('self.pokedex = ' + f.read())
-        self.usage_dict = {}
+        self.usage_dict = {} #when this is a variable of the class, it does not have to be recalculated. Otherwise, add to DataUtilities and pickle!
     
+    #TODO: Consider adding a PARAMS argument that dictates which columns are produced
     def transform(self, data):
         # Initialize Usage_Dictionary
         self.usage_dict = self.get_usage_dict(data)
@@ -38,7 +39,7 @@ class DataTransformer:
 
         for j in usage_dict.keys():
             usage_dict.update({j : float(usage_dict.get(j))/total})
-            # print(j,float(usage_dict.get(j)*100))
+            # print(j,float(usage_dict.get(j)*100),'%')
         return usage_dict
 
     def get_roster_mean_basestat(self, stat, roster):
@@ -56,12 +57,11 @@ class DataTransformer:
 
     def get_roster_sdv_basestat(self, stat, roster):
         return np.std([self.pokedex[pokekey(p)]['baseStats'][stat] for p in get_roster_as_list(roster)])
+    
+    def get_roster_median_basestat(self, stat, roster):
+        return np.median([self.pokedex[pokekey(p)]['baseStats'][stat] for p in get_roster_as_list(roster)])
 
     def get_roster_sdv_all_stats(self, stat, roster):
-        ''' Pretty sure that this statistic is flawed... it is currently
-            a mean of the standard deviations of all statistics. I imagine
-            that when not normalized, certain statistics can dominate this metric,
-            thus diluting its value. Follow up on this '''
         sdv_hp = self.get_roster_sdv_basestat('hp', roster)
         sdv_atk = self.get_roster_sdv_basestat('atk', roster)
         sdv_def = self.get_roster_sdv_basestat('def', roster)
@@ -81,11 +81,11 @@ class DataTransformer:
 
         for att_mon_types in t1_as_types:
             for def_mon_types in t2_as_types:
-                type_metric += self.evaluate_matchup_most_effective(att_mon_types, def_mon_types)
+                type_metric += self.evaluate_matchup_total(att_mon_types, def_mon_types)
 
         for att_mon_types in t2_as_types:
             for def_mon_types in t1_as_types:
-                type_metric -= self.evaluate_matchup_most_effective(att_mon_types, def_mon_types)
+                type_metric -= self.valuate_matchup_total(att_mon_types, def_mon_types)
 
         return type_metric
 
@@ -106,29 +106,11 @@ class DataTransformer:
                 type_metric -= self.evaluate_matchup_most_effective(att_mon_types, def_mon_types)
 
         return type_metric
-
-    def evaluate_matchup_total(self, att_mon_types, def_mon_types):
-        if len(att_mon_types) == 1:
-            return get_attack_effectiveness(att_mon_types[0], def_mon_types)
-
-        else:
-            return sum(get_attack_effectiveness(att_mon_types[0], def_mon_types),
-                       get_attack_effectiveness(att_mon_types[1], def_mon_types))
-
-    def evaluate_matchup_most_effective(self, att_mon_types, def_mon_types):
-        if len(att_mon_types) == 1:
-            return get_attack_effectiveness(att_mon_types[0], def_mon_types)
-
-        else:
-            return max(get_attack_effectiveness(att_mon_types[0], def_mon_types),
-                       get_attack_effectiveness(att_mon_types[1], def_mon_types))
-
+    
     def get_highest_speed_flag(self, roster1, roster2):
-        # t1 = [mon for mon in get_roster_as_list(roster1)]
-        # t2 = [mon for mon in get_roster_as_list(roster2)]
-        # t1_as_types = [self.pokedex.get(pokekey(mon)).get('baseStats').get('spe') for mon in t1]
-        # t2_as_types = [self.pokedex.get(pokekey(mon)).get('baseStats').get('spe') for mon in t2]
-        return 
+        fastest_1 = max([self.pokedex[pokekey(p)]['baseStats']['spe'] for p in get_roster_as_list(roster1)])
+        fastest_2 = max([self.pokedex[pokekey(p)]['baseStats']['spe'] for p in get_roster_as_list(roster2)])
+        return 'T1' if fastest_1 > fastest_2 else 'T2' if fastest_2 > fastest_1 else 'TIE'
   
     def get_sdv_roster_usage_rates(self, roster):
         return np.std([self.usage_dict[deforme_pokemon_name(mon)] for mon in get_roster_as_list(roster)])
@@ -136,3 +118,19 @@ class DataTransformer:
     def get_mean_roster_usage_rates(self, roster):
         return sum([self.usage_dict[deforme_pokemon_name(mon)] for mon in get_roster_as_list(roster)]) / 6.0
 
+    @staticmethod
+    def evaluate_matchup_total(att_mon_types, def_mon_types):
+        if len(att_mon_types) == 1:
+            return get_attack_effectiveness(att_mon_types[0], def_mon_types)
+
+        else:
+            return sum(get_attack_effectiveness(att_mon_types[0], def_mon_types),
+                       get_attack_effectiveness(att_mon_types[1], def_mon_types))
+
+    @staticmethod
+    def evaluate_matchup_most_effective(att_mon_types, def_mon_types):
+        if len(att_mon_types) == 1:
+            return get_attack_effectiveness(att_mon_types[0], def_mon_types)
+        else:
+            return max(get_attack_effectiveness(att_mon_types[0], def_mon_types),
+                       get_attack_effectiveness(att_mon_types[1], def_mon_types))

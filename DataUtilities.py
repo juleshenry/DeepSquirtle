@@ -43,6 +43,17 @@ def pokekey(s):
     bad_chars = ['-', '%', '*', '.', ' ', ':', '\"']
     return s.lower().translate({ord(c): '' for c in bad_chars})
 
+def deforme_pokemon_name(poke):
+    #capture edge cases from forme names
+    forme_list = ['Alola','Therian','-o','-Z','-Unbound','-10%']
+    
+    for forme in forme_list:
+        if forme in poke:
+            return poke.split('-')[0] + '-' + poke.split('-')[1] 
+
+    return poke.split('-')[0]
+
+
 def poke_defend(types):
     return types if len(types) == 2 else [types[0], types[0]]
 
@@ -60,29 +71,3 @@ def get_attack_effectiveness(att_mon_type, def_mon_types):
     att_index = type_indices.index(att_mon_type)
 
     return get_defense_effectiveness_list(*def_mon_types)[att_index]
-
-#TODO: Get distributions possibly pickle, possible memoize, implement correctly
-def get_usage_distributions():
-    return
-    # agg_roster = []
-    # for i in range(2000):
-    #     agg_roster += [mon for mon in da.string_to_list(df.team_1.iloc[i])]
-    #     agg_roster += [mon for mon in da.string_to_list(df.team_2.iloc[i])]
-    # roster_freq = {}
-    # for mon in agg_roster:
-    #     if(mon not in roster_freq.keys()):
-    #         roster_freq.update({mon:1})
-    #     else:
-    #         roster_freq.update({mon:roster_freq.get(mon)+1})
-    # dict_roster_freq = collections.OrderedDict(sorted(roster_freq.items(),key = lambda kv: kv[1]))
-    # samplesize = 0
-    # freq_key_list = list(dict_roster_freq.keys())
-    # freq_val_list = list(dict_roster_freq.values())
-    # for freq in freq_val_list: samplesize += freq
-    # for i in range(40):
-    #     print(f"{i+1}. {freq_key_list[-i-1]} : {freq_val_list[-i-1]*100/samplesize}%")
-
-    # plt.bar(dict_roster_freq.keys(),dict_roster_freq.values(),color='g')
-    # plt.xticks(rotation=90)
-    # plt.show()
-    # x = [pokedex[da.pokekey(p)]['types'] for p in da.string_to_list(df.team_1.iloc[0])]

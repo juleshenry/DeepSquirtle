@@ -9,7 +9,7 @@ notcare = ['num:', 'gender', 'heightm', 'color', 'prevo', 'evoType', \
 with open('pokedex.js', 'r+') as f:
     for line in f:
         if not (any(ele in line for ele in notcare)):
-            pokedex_js += line 
+            pokedex_js += line
 
 def insert (source_str, insert_str, pos):
     return source_str[:pos]+insert_str+source_str[pos:]
@@ -21,8 +21,8 @@ def javascript_dict_to_python(s): #TODO address boolean format, address errant q
     within_word = False
     s = s.replace('\"','')
     #find the location where single quotes should go
-    single_quote_i = [] 
-    for i in range(0,len(s)-1): 
+    single_quote_i = []
+    for i in range(0,len(s)-1):
         if s[i+1].isalpha() and (not within_word):
             single_quote_i.append(i+1)
             within_word = not within_word
@@ -30,7 +30,7 @@ def javascript_dict_to_python(s): #TODO address boolean format, address errant q
             single_quote_i.append(i+1)
             within_word = not within_word
     for i in reversed(single_quote_i): s = insert(s, '\'', i)
-    
+
     quotes = find(s, '\'')
     remove_space_i = []
     for i in range(len(quotes)-1):
@@ -39,7 +39,7 @@ def javascript_dict_to_python(s): #TODO address boolean format, address errant q
     for rm in reversed(remove_space_i):
         s = f"{s[:rm[0]]} {s[rm[1]+1:]}"
     return s
-    
+
 js_dex = '{' + javascript_dict_to_python(pokedex_js.split('{',1)[1])
 js_dex = js_dex.replace("'Farfetch'''d'","\"Farfetch'd\"")
 js_dex = js_dex.replace("'Mr'. 'Mime'", "'Mr. Mime'")
@@ -47,7 +47,7 @@ js_dex = js_dex.replace("'porygon'2", "'porygon2'")
 js_dex = js_dex.replace("'Porygon'2","'Porygon2'")
 js_dex = js_dex.replace("'-'",'-')
 js_dex = js_dex.replace("'Mime Jr'.","'Mime Jr.'")
-js_dex = js_dex.replace("'Flabe'\\'u'0301'be'\\'u'0301","'Flabe\u0301be\u0301'")
+js_dex = js_dex.replace("'Flabe'\\'u'0301'be'\\'u'0301","u'Flabe\u0301be\u0301'")
 js_dex = js_dex.replace("'zygarde'10","'zygarde10'")
 js_dex = js_dex.replace("'Zygarde'-10%","'Zygarde-10%'")
 js_dex = js_dex.replace("10%,","'10%',")
@@ -68,14 +68,18 @@ for pokedex_entry in pokedex.values():
         for forme in pokedex_entry['otherForms']:
             if(forme not in pokedex.keys()):
                 form_problems.append({forme:pokedex_entry})
+    # if('otherFormes' in pokedex_entry.keys()):
+    #     for forme in pokedex_entry['otherFormes']:
+    #         if(forme not in pokedex.keys()):
+    #             form_problems.append({forme:pokedex_entry})
 
 for entry in form_problems:
     pokedex.update(entry)
 
 js_dex = str(pokedex)
 
-f = open('pokedex_dict.txt', 'w+')
+f = open('pokedex_dict_2.txt', 'w+', encoding="utf-8")
 f.write(js_dex)
-f.close
-kyk = 0
-dicc = exec("kyk = " + js_dex)
+f.close()
+test_dict = {}
+dicc = exec("test_dict = " + js_dex)

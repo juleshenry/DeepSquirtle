@@ -14,8 +14,6 @@ Small fixes:
 
 TO-DO ---------------------------------------------------------------
 
-
-
 4.  Data wrangling on newly generated data
     a. Construct the final dataframe
     b. Normalize our data
