@@ -7,7 +7,8 @@ class DataTransformer:
 
     def __init__(self):
         self.pokedex = {}
-        with open('pokedex_dict.txt', 'r+') as f: exec('self.pokedex = ' + f.read())
+
+        with open('pokedex_dict.txt', 'r+', encoding='utf-8') as f: exec('self.pokedex = ' + f.read())
         self.usage_dict = {} #when this is a variable of the class, it does not have to be recalculated. Otherwise, add to DataUtilities and pickle!
     
     #TODO: Consider adding a PARAMS argument that dictates which columns are produced
@@ -55,6 +56,17 @@ class DataTransformer:
         
         return (m_hp + m_atk + m_def + m_spa + m_spd + m_spe)/6.0
 
+    def get_roster_mean_overall_defense(self, stat, roster):
+        m_hp = self.get_roster_mean_basestat('hp', roster)
+        m_def = self.get_roster_mean_basestat('def', roster)
+        m_spd = self.get_roster_mean_basestat('spd', roster)
+        return (m_hp + m_def + m_spd)/3.0
+
+    def get_roster_mean_overall_attack(self, stat, roster):
+        m_atk = self.get_roster_mean_basestat('atk', roster)
+        m_spa = self.get_roster_mean_basestat('spa', roster)
+        return (m_atk + m_spa)/2.0
+
     def get_roster_sdv_basestat(self, stat, roster):
         return np.std([self.pokedex[pokekey(p)]['baseStats'][stat] for p in get_roster_as_list(roster)])
     
@@ -70,6 +82,17 @@ class DataTransformer:
         sdv_spe = self.get_roster_sdv_basestat('spe', roster)
 
         return (sdv_hp + sdv_atk + sdv_def + sdv_spa + sdv_spd + sdv_spe)/6.0
+
+    def get_roster_sdv_overall_defense(self, stat, roster):
+        sdv_hp = self.get_roster_sdv_basestat('hp', roster)
+        sdv_def = self.get_roster_sdv_basestat('def', roster)
+        sdv_spd = self.get_roster_sdv_basestat('spd', roster)
+        return (sdv_hp + sdv_def + sdv_spd)/3.0
+
+    def get_roster_sdv_overall_attack(self, stat, roster):
+        sdv_atk = self.get_roster_sdv_basestat('atk', roster)
+        sdv_spa = self.get_roster_sdv_basestat('spa', roster)
+        return (sdv_atk + sdv_spa)/2.0
 
     def get_total_attack_effectiveness(self, roster1, roster2):
         t1 = [mon for mon in get_roster_as_list(roster1)]
@@ -118,8 +141,7 @@ class DataTransformer:
     def get_mean_roster_usage_rates(self, roster):
         return sum([self.usage_dict[deforme_pokemon_name(mon)] for mon in get_roster_as_list(roster)]) / 6.0
 
-    @staticmethod
-    def evaluate_matchup_total(att_mon_types, def_mon_types):
+    def evaluate_matchup_total(self, att_mon_types, def_mon_types):
         if len(att_mon_types) == 1:
             return get_attack_effectiveness(att_mon_types[0], def_mon_types)
 
@@ -127,8 +149,7 @@ class DataTransformer:
             return sum(get_attack_effectiveness(att_mon_types[0], def_mon_types),
                        get_attack_effectiveness(att_mon_types[1], def_mon_types))
 
-    @staticmethod
-    def evaluate_matchup_most_effective(att_mon_types, def_mon_types):
+    def evaluate_matchup_most_effective(self, att_mon_types, def_mon_types):
         if len(att_mon_types) == 1:
             return get_attack_effectiveness(att_mon_types[0], def_mon_types)
         else:
