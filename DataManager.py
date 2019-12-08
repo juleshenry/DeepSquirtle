@@ -18,7 +18,9 @@ class DataManager:
         dmdf = dmdf.drop_duplicates(subset = 'battle_url', keep='first')
         dmdf = dmdf.drop(['battle_url'], axis=1)
         dmdf = dmdf.dropna()
-        dmdf = dmdf[dmdf.elo != 2019] # Should maybe not do this
+        elo_valid_slice = dmdf['elo'] != 2019
+        elo_avg = elo_valid_slice.mean()
+        dmdf['elo'] = np.where(dmdf['elo'] == 2019, elo_avg, dmdf['elo'])
         dmdf = dmdf[dmdf.elo >= elo]
         dmdf = dmdf[dmdf.num_turns > 5]
         return dmdf
@@ -27,12 +29,12 @@ class DataManager:
     def create_analytics_base_table(self):
         return self.normalizer.normalize(self.transformer.transform(self.dmdf))
 
-if __name__ = "__main__":
+if __name__ == "__main__":
     data = pd.read_csv('battle_data.csv')
     dm = DataManager(data).create_analytics_base_table()
 
-    dt = DataTransformer()
-    print([func for func in dir(dt) if callable(getattr(dt, func)) and not func.startswith("__")])
-    print([str(inspect.signature(getattr(dt, func))) for func in dir(dt) if callable(getattr(dt, func)) and not func.startswith("__")])
-    print([type(getattr(dt, func)) for func in dir(dt) if callable(getattr(dt, func)) and not func.startswith("__")])
+    # dt = DataTransformer()
+    # print([func for func in dir(dt) if callable(getattr(dt, func)) and not func.startswith("__")])
+    # print([str(inspect.signature(getattr(dt, func))) for func in dir(dt) if callable(getattr(dt, func)) and not func.startswith("__")])
+    # print([type(getattr(dt, func)) for func in dir(dt) if callable(getattr(dt, func)) and not func.startswith("__")])
 

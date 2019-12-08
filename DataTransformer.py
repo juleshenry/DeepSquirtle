@@ -11,14 +11,38 @@ class DataTransformer:
         with open('pokedex_dict.txt', 'r+', encoding='utf-8') as f: exec('self.pokedex = ' + f.read())
         self.usage_dict = {} #when this is a variable of the class, it does not have to be recalculated. Otherwise, add to DataUtilities and pickle!
     
-    #TODO: Consider adding a PARAMS argument that dictates which columns are produced
     def transform(self, data):
+
         # Initialize Usage_Dictionary
         self.usage_dict = self.get_usage_dict(data)
 
-        transformed_data = data 
+        data['highest_speed_flag'] = data.apply(lambda row: self.get_highest_speed_flag(row['team_1'],row['team_2']),axis=1)
 
-        return transformed_data
+        data['mean_roster_usage_rates_1'] = data.apply(lambda row: self.get_mean_roster_usage_rates(row['team_1']),axis=1)
+        data['mean_roster_usage_rates_2'] = data.apply(lambda row: self.get_mean_roster_usage_rates(row['team_2']),axis=1)
+
+        data['most_effective_attack_effectiveness'] = data.apply(lambda row: self.get_most_effective_attack_effectiveness(row['team_1'],row['team_2']),axis=1)
+        
+        data['roster_mean_all_stats_1'] = data.apply(lambda row: self.get_roster_mean_all_stats(row['team_1']),axis=1)
+        data['roster_mean_all_stats_2'] = data.apply(lambda row: self.get_roster_mean_all_stats(row['team_2']),axis=1)
+
+        stats_list = ['hp','atk','def','spa','spd','hp']
+        for stat in stats_list:
+            data['roster_mean_basestat_1_'+stat] = data.apply(lambda row: self.get_roster_mean_basestat(stat,row['team_1']),axis=1)
+            data['roster_mean_basestat_2_'+stat] = data.apply(lambda row: self.get_roster_mean_basestat(stat,row['team_2']),axis=1)
+
+        # get_roster_mean_overall_attack
+        # 'get_roster_mean_overall_attack',
+        # 'get_roster_mean_overall_defense',
+        # 'get_roster_median_basestat',
+        # 'get_roster_sdv_all_stats'
+        # 'get_roster_sdv_basestat',
+        # 'get_roster_sdv_overall_attack',
+        # 'get_roster_sdv_overall_defense',
+        # 'get_sdv_roster_usage_rates',
+        # 'get_total_attack_effectiveness',
+        print(data.head())
+        return data
 
     # Returns a dictionary with keys as pokemon and usage as percentage of total appearance as values
     def get_usage_dict(self, data):
@@ -108,10 +132,11 @@ class DataTransformer:
 
         for att_mon_types in t2_as_types:
             for def_mon_types in t1_as_types:
-                type_metric -= self.valuate_matchup_total(att_mon_types, def_mon_types)
+                type_metric -= self.evaluate_matchup_total(att_mon_types, def_mon_types)
 
         return type_metric
 
+    # Is positive if in favor of roster_1
     def get_most_effective_attack_effectiveness(self, roster1, roster2):
         t1 = get_roster_as_list(roster1)
         t2 = get_roster_as_list(roster2)
