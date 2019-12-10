@@ -16,31 +16,45 @@ class DataTransformer:
         # Initialize Usage_Dictionary
         self.usage_dict = self.get_usage_dict(data)
 
+        data['total_effective_attack_effectiveness'] = data.apply(lambda row: self.get_total_attack_effectiveness(row['team_1'],row['team_2']),axis=1)
         data['highest_speed_flag'] = data.apply(lambda row: self.get_highest_speed_flag(row['team_1'],row['team_2']),axis=1)
 
         data['mean_roster_usage_rates_1'] = data.apply(lambda row: self.get_mean_roster_usage_rates(row['team_1']),axis=1)
         data['mean_roster_usage_rates_2'] = data.apply(lambda row: self.get_mean_roster_usage_rates(row['team_2']),axis=1)
 
+        data['sdv_roster_usage_rates_1'] = data.apply(lambda row: self.get_sdv_roster_usage_rates(row['team_1']),axis=1)
+        data['sdv_roster_usage_rates_2'] = data.apply(lambda row: self.get_sdv_roster_usage_rates(row['team_2']),axis=1)
+
         data['most_effective_attack_effectiveness'] = data.apply(lambda row: self.get_most_effective_attack_effectiveness(row['team_1'],row['team_2']),axis=1)
+        data['total_effective_attack_effectiveness'] = data.apply(lambda row: self.get_total_attack_effectiveness(row['team_1'],row['team_2']),axis=1)
         
         data['roster_mean_all_stats_1'] = data.apply(lambda row: self.get_roster_mean_all_stats(row['team_1']),axis=1)
         data['roster_mean_all_stats_2'] = data.apply(lambda row: self.get_roster_mean_all_stats(row['team_2']),axis=1)
 
+        data['roster_mean_overall_attack_1'] = data.apply(lambda row: self.get_roster_mean_overall_attack(row['team_1']),axis=1)
+        data['roster_mean_overall_attack_2'] = data.apply(lambda row: self.get_roster_mean_overall_attack(row['team_2']),axis=1)
+
+        data['roster_mean_overall_defense_1'] = data.apply(lambda row: self.get_roster_mean_overall_defense(row['team_1']),axis=1)
+        data['roster_mean_overall_defense_2'] = data.apply(lambda row: self.get_roster_mean_overall_defense(row['team_2']),axis=1)
+
+        data['roster_sdv_all_stats_1'] = data.apply(lambda row: self.get_roster_sdv_all_stats(row['team_1']),axis=1)
+        data['roster_sdv_all_stats_1'] = data.apply(lambda row: self.get_roster_sdv_all_stats(row['team_1']),axis=1)
+
+        data['roster_sdv_overall_attack_1'] = data.apply(lambda row: self.get_roster_sdv_overall_attack(row['team_1']),axis=1)
+        data['roster_sdv_overall_attack_2'] = data.apply(lambda row: self.get_roster_sdv_overall_attack(row['team_2']),axis=1)
+
+        data['roster_sdv_overall_defense_1'] = data.apply(lambda row: self.get_roster_sdv_overall_defense(row['team_1']),axis=1)
+        data['roster_sdv_overall_defense_1'] = data.apply(lambda row: self.get_roster_sdv_overall_defense(row['team_1']),axis=1)
+       
         stats_list = ['hp','atk','def','spa','spd','hp']
         for stat in stats_list:
             data['roster_mean_basestat_1_'+stat] = data.apply(lambda row: self.get_roster_mean_basestat(stat,row['team_1']),axis=1)
             data['roster_mean_basestat_2_'+stat] = data.apply(lambda row: self.get_roster_mean_basestat(stat,row['team_2']),axis=1)
+            data['roster_sdv_basestat_1_'+stat] = data.apply(lambda row: self.get_roster_sdv_basestat(stat,row['team_1']),axis=1)
+            data['roster_sdv_basestat_2_'+stat] = data.apply(lambda row: self.get_roster_sdv_basestat(stat,row['team_2']),axis=1)
+            data['roster_median_basestat_1_'+stat] = data.apply(lambda row: self.get_roster_median_basestat(stat,row['team_1']),axis=1)
+            data['roster_median_basestat_2_'+stat] = data.apply(lambda row: self.get_roster_median_basestat(stat,row['team_2']),axis=1)
 
-        # get_roster_mean_overall_attack
-        # 'get_roster_mean_overall_attack',
-        # 'get_roster_mean_overall_defense',
-        # 'get_roster_median_basestat',
-        # 'get_roster_sdv_all_stats'
-        # 'get_roster_sdv_basestat',
-        # 'get_roster_sdv_overall_attack',
-        # 'get_roster_sdv_overall_defense',
-        # 'get_sdv_roster_usage_rates',
-        # 'get_total_attack_effectiveness',
         print(data.head())
         return data
 
@@ -80,13 +94,13 @@ class DataTransformer:
         
         return (m_hp + m_atk + m_def + m_spa + m_spd + m_spe)/6.0
 
-    def get_roster_mean_overall_defense(self, stat, roster):
+    def get_roster_mean_overall_defense(self, roster):
         m_hp = self.get_roster_mean_basestat('hp', roster)
         m_def = self.get_roster_mean_basestat('def', roster)
         m_spd = self.get_roster_mean_basestat('spd', roster)
         return (m_hp + m_def + m_spd)/3.0
 
-    def get_roster_mean_overall_attack(self, stat, roster):
+    def get_roster_mean_overall_attack(self, roster):
         m_atk = self.get_roster_mean_basestat('atk', roster)
         m_spa = self.get_roster_mean_basestat('spa', roster)
         return (m_atk + m_spa)/2.0
@@ -97,7 +111,7 @@ class DataTransformer:
     def get_roster_median_basestat(self, stat, roster):
         return np.median([self.pokedex[pokekey(p)]['baseStats'][stat] for p in get_roster_as_list(roster)])
 
-    def get_roster_sdv_all_stats(self, stat, roster):
+    def get_roster_sdv_all_stats(self, roster):
         sdv_hp = self.get_roster_sdv_basestat('hp', roster)
         sdv_atk = self.get_roster_sdv_basestat('atk', roster)
         sdv_def = self.get_roster_sdv_basestat('def', roster)
@@ -107,20 +121,21 @@ class DataTransformer:
 
         return (sdv_hp + sdv_atk + sdv_def + sdv_spa + sdv_spd + sdv_spe)/6.0
 
-    def get_roster_sdv_overall_defense(self, stat, roster):
+    def get_roster_sdv_overall_defense(self, roster):
         sdv_hp = self.get_roster_sdv_basestat('hp', roster)
         sdv_def = self.get_roster_sdv_basestat('def', roster)
         sdv_spd = self.get_roster_sdv_basestat('spd', roster)
         return (sdv_hp + sdv_def + sdv_spd)/3.0
 
-    def get_roster_sdv_overall_attack(self, stat, roster):
+    def get_roster_sdv_overall_attack(self, roster):
         sdv_atk = self.get_roster_sdv_basestat('atk', roster)
         sdv_spa = self.get_roster_sdv_basestat('spa', roster)
         return (sdv_atk + sdv_spa)/2.0
 
+    # Returns positive if in favor of roster_1
     def get_total_attack_effectiveness(self, roster1, roster2):
-        t1 = [mon for mon in get_roster_as_list(roster1)]
-        t2 = [mon for mon in get_roster_as_list(roster2)]
+        t1 = get_roster_as_list(roster1)
+        t2 = get_roster_as_list(roster2)
         t1_as_types = [self.pokedex.get(pokekey(mon)).get('types') for mon in t1]
         t2_as_types = [self.pokedex.get(pokekey(mon)).get('types') for mon in t2]
 
@@ -128,15 +143,15 @@ class DataTransformer:
 
         for att_mon_types in t1_as_types:
             for def_mon_types in t2_as_types:
-                type_metric += self.evaluate_matchup_total(att_mon_types, def_mon_types)
+                type_metric += self.evaluate_matchup_most_effective(att_mon_types, def_mon_types)
 
         for att_mon_types in t2_as_types:
             for def_mon_types in t1_as_types:
-                type_metric -= self.evaluate_matchup_total(att_mon_types, def_mon_types)
+                type_metric -= self.evaluate_matchup_most_effective(att_mon_types, def_mon_types)
 
         return type_metric
 
-    # Is positive if in favor of roster_1
+    # Returns positive if in favor of roster_1
     def get_most_effective_attack_effectiveness(self, roster1, roster2):
         t1 = get_roster_as_list(roster1)
         t2 = get_roster_as_list(roster2)
@@ -169,8 +184,8 @@ class DataTransformer:
     def evaluate_matchup_total(self, att_mon_types, def_mon_types):
         if len(att_mon_types) == 1:
             return get_attack_effectiveness(att_mon_types[0], def_mon_types)
-
         else:
+            print(att_mon_types, def_mon_types)
             return sum(get_attack_effectiveness(att_mon_types[0], def_mon_types),
                        get_attack_effectiveness(att_mon_types[1], def_mon_types))
 
