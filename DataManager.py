@@ -27,14 +27,18 @@ class DataManager:
 
 
     def create_analytics_base_table(self):
-        return self.normalizer.normalize(self.transformer.transform(self.dmdf))
+        return self.normalizer.normalize(self.transformer.transform_from_class_dict(self.dmdf))
 
 if __name__ == "__main__":
     data = pd.read_csv('battle_data.csv')
     dm = DataManager(data).create_analytics_base_table()
 
     # dt = DataTransformer()
-    # print([func for func in dir(dt) if callable(getattr(dt, func)) and not func.startswith("__")])
-    # print([str(inspect.signature(getattr(dt, func))) for func in dir(dt) if callable(getattr(dt, func)) and not func.startswith("__")])
-    # print([type(getattr(dt, func)) for func in dir(dt) if callable(getattr(dt, func)) and not func.startswith("__")])
-
+    # a = [func for func in dir(dt) if callable(getattr(dt, func)) and not func.startswith("__")]
+    # b = [str(inspect.signature(getattr(dt, func))) for func in dir(dt) if callable(getattr(dt, func)) and not func.startswith("__")]
+    # c = [type(getattr(dt, func)) for func in dir(dt) if callable(getattr(dt, func)) and not func.startswith("__")]
+    # for i in b:
+    #     if 'stat' in i:
+    #         print('statbased:',i)
+    #     else:
+    #         print([arg.replace('(','').replace(')','').replace(' ','') for arg in i.split(',')])

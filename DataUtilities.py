@@ -53,7 +53,6 @@ def deforme_pokemon_name(poke):
 
     return poke.split('-')[0]
 
-
 def poke_defend(types):
     return types if len(types) == 2 else [types[0], types[0]]
 
@@ -63,7 +62,6 @@ def get_defense_effectiveness_list(def_type_1, def_type_2):
 
     return [float(a*b) for a,b in zip(def_coeffs[def_type_1], def_coeffs[def_type_2])]
 
-
 def get_attack_effectiveness(att_mon_type, def_mon_types):
     def_mon_types = poke_defend(def_mon_types)
     type_indices = list(def_coeffs.keys())
@@ -71,3 +69,5 @@ def get_attack_effectiveness(att_mon_type, def_mon_types):
     att_index = type_indices.index(att_mon_type)
 
     return get_defense_effectiveness_list(*def_mon_types)[att_index]
+
+def tuple_to_list(s): return s.replace('(','').replace(')','').replace(' ','').split(',')
