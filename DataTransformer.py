@@ -13,39 +13,27 @@ class DataTransformer:
         self.usage_dict = {} #when this is a variable of the class, it does not have to be recalculated. Otherwise, add to DataUtilities and pickle!
     
     def transform(self, data):
-        # Initialize Usage_Dictionary
-        self.usage_dict = self.get_usage_dict(data)
-
+        self.usage_dict = self.get_usage_dict(data) # Initialize Usage_Dictionary
         data['total_effective_attack_effectiveness'] = data.apply(lambda row: self.get_total_attack_effectiveness(row['team_1'],row['team_2']),axis=1)
         data['highest_speed_flag'] = data.apply(lambda row: self.get_highest_speed_flag(row['team_1'],row['team_2']),axis=1)
-
         data['mean_roster_usage_rates_1'] = data.apply(lambda row: self.get_mean_roster_usage_rates(row['team_1']),axis=1)
         data['mean_roster_usage_rates_2'] = data.apply(lambda row: self.get_mean_roster_usage_rates(row['team_2']),axis=1)
-
         data['sdv_roster_usage_rates_1'] = data.apply(lambda row: self.get_sdv_roster_usage_rates(row['team_1']),axis=1)
         data['sdv_roster_usage_rates_2'] = data.apply(lambda row: self.get_sdv_roster_usage_rates(row['team_2']),axis=1)
-
         data['most_effective_attack_effectiveness'] = data.apply(lambda row: self.get_most_effective_attack_effectiveness(row['team_1'],row['team_2']),axis=1)
         data['total_effective_attack_effectiveness'] = data.apply(lambda row: self.get_total_attack_effectiveness(row['team_1'],row['team_2']),axis=1)
-        
         data['roster_mean_all_stats_1'] = data.apply(lambda row: self.get_roster_mean_all_stats(row['team_1']),axis=1)
         data['roster_mean_all_stats_2'] = data.apply(lambda row: self.get_roster_mean_all_stats(row['team_2']),axis=1)
-
         data['roster_mean_overall_attack_1'] = data.apply(lambda row: self.get_roster_mean_overall_attack(row['team_1']),axis=1)
         data['roster_mean_overall_attack_2'] = data.apply(lambda row: self.get_roster_mean_overall_attack(row['team_2']),axis=1)
-
         data['roster_mean_overall_defense_1'] = data.apply(lambda row: self.get_roster_mean_overall_defense(row['team_1']),axis=1)
         data['roster_mean_overall_defense_2'] = data.apply(lambda row: self.get_roster_mean_overall_defense(row['team_2']),axis=1)
-
         data['roster_sdv_all_stats_1'] = data.apply(lambda row: self.get_roster_sdv_all_stats(row['team_1']),axis=1)
         data['roster_sdv_all_stats_1'] = data.apply(lambda row: self.get_roster_sdv_all_stats(row['team_1']),axis=1)
-
         data['roster_sdv_overall_attack_1'] = data.apply(lambda row: self.get_roster_sdv_overall_attack(row['team_1']),axis=1)
         data['roster_sdv_overall_attack_2'] = data.apply(lambda row: self.get_roster_sdv_overall_attack(row['team_2']),axis=1)
-
         data['roster_sdv_overall_defense_1'] = data.apply(lambda row: self.get_roster_sdv_overall_defense(row['team_1']),axis=1)
         data['roster_sdv_overall_defense_1'] = data.apply(lambda row: self.get_roster_sdv_overall_defense(row['team_1']),axis=1)
-       
         for stat in ['hp','atk','def','spa','spd','hp']:
             data['roster_mean_basestat_1_'+stat] = data.apply(lambda row: self.get_roster_mean_basestat(stat,row['team_1']),axis=1)
             data['roster_mean_basestat_2_'+stat] = data.apply(lambda row: self.get_roster_mean_basestat(stat,row['team_2']),axis=1)
@@ -53,38 +41,28 @@ class DataTransformer:
             data['roster_sdv_basestat_2_'+stat] = data.apply(lambda row: self.get_roster_sdv_basestat(stat,row['team_2']),axis=1)
             data['roster_median_basestat_1_'+stat] = data.apply(lambda row: self.get_roster_median_basestat(stat,row['team_1']),axis=1)
             data['roster_median_basestat_2_'+stat] = data.apply(lambda row: self.get_roster_median_basestat(stat,row['team_2']),axis=1)
-
         droppable_columns = ['team_1', 'team_2', 'num_turns','disconnect']
         return data.drop(droppable_columns, axis=1)
 
     def transform_from_class_dict(self, data):
-        # Initialize Usage_Dictionary
-        self.usage_dict = self.get_usage_dict(data)
-        func_args_list = [[getattr(self, func), tuple_to_list(str(inspect.signature(getattr(self, func))))] \
-                         for func in dir(self) if callable(getattr(self, func)) and not func.startswith("__")]
-
+        self.usage_dict = self.get_usage_dict(data) # Initialize Usage_Dictionary
+        func_args_list = [[getattr(self, func), tuple_to_list(str(inspect.signature(getattr(self, func))))] for func in dir(self) if callable(getattr(self, func)) and not func.startswith("__")]
         disqualifying_args = set()
         for args in func_args_list:
             for arg in args[1]:
-                if arg not in str(data.columns.tolist()):
-                    disqualifying_args.add(arg)
-
+                if arg not in str(data.columns.tolist()): disqualifying_args.add(arg)
         for func_arg in func_args_list:
             func, arg, safe = func_arg[0], func_arg[1], True
-            for dq_arg in disqualifying_args: # One argument is not in the dataset columns 
-                if dq_arg in arg: safe = False
-            if safe: 
-                if 'team_1' in arg and 'team_2' in arg and len(arg) == 2: # Column metric describes both teams
-                    data[func.__name__] = data.apply(lambda row: func(row['team_1'],row['team_2']),axis=1)
+            if any(dq_arg in arg for dq_arg in disqualifying_args): safe = False
+            if safe: # Column metric describes both teams 
+                if len(arg) == 2: data[func.__name__] = data.apply(lambda row: func(*[row[a] for a in arg]),axis=1)
                 else:
-                    data[func.__name__ + '_1'] = data.apply(lambda row: func(row['team_1']),axis=1)
-                    data[func.__name__ + '_2'] = data.apply(lambda row: func(row['team_2']),axis=1)
-            else:
-                if 'stat' in arg:
+                    data[func.__name__ + '_1'] = data.apply(lambda row: func(*[row[a] for a in arg]),axis=1)
+                    data[func.__name__ + '_2'] = data.apply(lambda row: func(*[row[a] for a in arg]),axis=1)
+            elif 'stat' in arg:
                     for stat in ['hp','atk','def','spa','spd','hp']:
-                        data[func.__name__+'_1_'+stat] = data.apply(lambda row: func(stat,row['team_1']),axis=1)
-                        data[func.__name__+'_2_'+stat] = data.apply(lambda row: func(stat,row['team_2']),axis=1)
-        
+                        data[func.__name__+'_1_'+stat] = data.apply(lambda row: func(stat,*[row[a] for a in arg]),axis=1)
+                        data[func.__name__+'_2_'+stat] = data.apply(lambda row: func(stat,*[row[a] for a in arg]),axis=1)
         droppable_columns = ['team_1', 'team_2', 'num_turns','disconnect']
         return data.drop(droppable_columns, axis=1)
 
