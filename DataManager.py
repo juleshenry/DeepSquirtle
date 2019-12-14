@@ -23,6 +23,7 @@ class DataManager:
         dmdf['elo'] = np.where(dmdf['elo'] == 2019, elo_avg, dmdf['elo'])
         dmdf = dmdf[dmdf.elo >= elo]
         dmdf = dmdf[dmdf.num_turns > 5]
+        dmdf['p1_elo'], dmdf['p2_elo'] = dmdf['p1_elo'].astype(float), dmdf['p2_elo'].astype(float)
         return dmdf
 
 
@@ -33,12 +34,4 @@ if __name__ == "__main__":
     data = pd.read_csv('battle_data.csv')
     dm = DataManager(data).create_analytics_base_table()
 
-    # dt = DataTransformer()
-    # a = [func for func in dir(dt) if callable(getattr(dt, func)) and not func.startswith("__")]
-    # b = [str(inspect.signature(getattr(dt, func))) for func in dir(dt) if callable(getattr(dt, func)) and not func.startswith("__")]
-    # c = [type(getattr(dt, func)) for func in dir(dt) if callable(getattr(dt, func)) and not func.startswith("__")]
-    # for i in b:
-    #     if 'stat' in i:
-    #         print('statbased:',i)
-    #     else:
-    #         print([arg.replace('(','').replace(')','').replace(' ','') for arg in i.split(',')])
+    

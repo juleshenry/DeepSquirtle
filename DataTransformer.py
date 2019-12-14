@@ -14,7 +14,7 @@ class DataTransformer:
     
     def transform(self, data):
         self.usage_dict = self.get_usage_dict(data) # Initialize Usage_Dictionary
-        data['total_effective_attack_effectiveness'] = data.apply(lambda row: self.get_total_attack_effectiveness(row['team_1'],row['team_2']),axis=1)
+        data['total_attack_effectiveness'] = data.apply(lambda row: self.get_total_attack_effectiveness(row['team_1'],row['team_2']),axis=1)
         data['highest_speed_flag'] = data.apply(lambda row: self.get_highest_speed_flag(row['team_1'],row['team_2']),axis=1)
         data['mean_roster_usage_rates_1'] = data.apply(lambda row: self.get_mean_roster_usage_rates(row['team_1']),axis=1)
         data['mean_roster_usage_rates_2'] = data.apply(lambda row: self.get_mean_roster_usage_rates(row['team_2']),axis=1)
@@ -29,7 +29,7 @@ class DataTransformer:
         data['roster_mean_overall_defense_1'] = data.apply(lambda row: self.get_roster_mean_overall_defense(row['team_1']),axis=1)
         data['roster_mean_overall_defense_2'] = data.apply(lambda row: self.get_roster_mean_overall_defense(row['team_2']),axis=1)
         data['roster_sdv_all_stats_1'] = data.apply(lambda row: self.get_roster_sdv_all_stats(row['team_1']),axis=1)
-        data['roster_sdv_all_stats_1'] = data.apply(lambda row: self.get_roster_sdv_all_stats(row['team_1']),axis=1)
+        data['roster_sdv_all_stats_2'] = data.apply(lambda row: self.get_roster_sdv_all_stats(row['team_2']),axis=1)
         data['roster_sdv_overall_attack_1'] = data.apply(lambda row: self.get_roster_sdv_overall_attack(row['team_1']),axis=1)
         data['roster_sdv_overall_attack_2'] = data.apply(lambda row: self.get_roster_sdv_overall_attack(row['team_2']),axis=1)
         data['roster_sdv_overall_defense_1'] = data.apply(lambda row: self.get_roster_sdv_overall_defense(row['team_1']),axis=1)
@@ -55,14 +55,14 @@ class DataTransformer:
             func, arg, safe = func_arg[0], func_arg[1], True
             if any(dq_arg in arg for dq_arg in disqualifying_args): safe = False
             if safe: # Column metric describes both teams 
-                if len(arg) == 2: data[func.__name__] = data.apply(lambda row: func(*[row[a] for a in arg]),axis=1)
+                if len(arg) == 2: data[func.__name__.replace('get_','')] = data.apply(lambda row: func(*[row[a] for a in arg]),axis=1)
                 else:
-                    data[func.__name__ + '_1'] = data.apply(lambda row: func(*[row[a] for a in arg]),axis=1)
-                    data[func.__name__ + '_2'] = data.apply(lambda row: func(*[row[a] for a in arg]),axis=1)
-            elif 'stat' in arg:
-                    for stat in ['hp','atk','def','spa','spd','hp']:
-                        data[func.__name__+'_1_'+stat] = data.apply(lambda row: func(stat,*[row[a] for a in arg]),axis=1)
-                        data[func.__name__+'_2_'+stat] = data.apply(lambda row: func(stat,*[row[a] for a in arg]),axis=1)
+                    data[func.__name__.replace('get_','') + '_1'] = data.apply(lambda row: func(*[row[a] for a in arg]),axis=1)
+                    data[func.__name__.replace('get_','') + '_2'] = data.apply(lambda row: func(*[row[a] for a in arg]),axis=1)
+            elif 'stat' in arg: 
+                for stat in ['hp','atk','def','spa','spd','hp']:
+                    data[func.__name__.replace('get_','') + '_1_' + stat] = data.apply(lambda row: func(stat,row['team_1']),axis=1)
+                    data[func.__name__.replace('get_','') + '_2_' + stat] = data.apply(lambda row: func(stat,row['team_2']),axis=1)
         droppable_columns = ['team_1', 'team_2', 'num_turns','disconnect']
         return data.drop(droppable_columns, axis=1)
 
